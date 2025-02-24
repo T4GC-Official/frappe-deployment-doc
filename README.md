@@ -221,41 +221,36 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ```sh
     bench --site <site-name> enable-scheduler
 ```
-#### For 2nd site
+
+#### Setup Let's Encrypt 
 ```sh
-    bench new-site <site-name2> --admin-password <site-admin-password> --db-root-password <mariadb-root-password>
+    sudo -H bench setup lets-encrypt <site-name>
+```
+# For 2nd site
+```sh
+    bench new-site <site-name2> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-username>
 ```
 #### Setup Nginx again
 ```sh
     bench setup nginx
 ```
-#### Reload Nginx
-```sh
-    sudo systemctl reload nginx
-```
+
 #### Enable scheduler for the 2nd site
 ```sh
     bench --site <site-name2> enable-scheduler
 ```
-#### Setup Let's Encrypt (Set it up for both the sites)
+#### Setup Let's Encrypt 
 ```sh
     sudo -H bench setup lets-encrypt <site-name>
 ```
+
+#### Reload Nginx
+```sh
+    sudo systemctl reload nginx
+```
 Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
 
-# Localhost Development Setup
-#### To enable developer mode
-```sh
-    bench set-config developer_mode 1
-```
-#### To enable auto-reload
-```sh
-    bench watch
-```
-#### To start the development server
-```sh
-    sudo supervisorctl restart all
-```
+
 # Install Frappe Apps
 #### To install an app from the Frappe App Store
 ```sh
@@ -276,6 +271,7 @@ Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
 ```sh
     sudo bench setup production frappe
 ```
+
 # Additional Important Commands
 
 #### To uninstall an app
@@ -335,4 +331,17 @@ Note:
 ## Remove sudo privileges for frappe
 ```sh
     sudo deluser frappe sudo
+```
+# Localhost Development Setup
+#### To enable developer mode
+```sh
+    bench set-config developer_mode 1
+```
+#### To enable auto-reload
+```sh
+    bench watch
+```
+#### To start the development server
+```sh
+    sudo supervisorctl restart all
 ```
