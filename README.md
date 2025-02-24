@@ -52,12 +52,12 @@ Description: Python is a programming language that lets you work quickly and int
 Description: MariaDB is a community-developed, commercially supported fork of the MySQL relational database management system.
 ```sh
     sudo apt-get update
-    sudo apt-get install mariadb-server
+    sudo apt-get install mariadb-server -y
     sudo apt install software-properties-common
     sudo mysql_secure_installation
     
 ```
-Note: After running the above command, you will be prompted to set a root password, remove anonymous users, disallow root login remotely, remove the test database, and reload privileges. You can press Y and hit Enter for all the prompts.
+Note: After running the above command, you will be prompted with which user to access (Press Enter), set a root password(Y), remove anonymous users(Y), disallow root login remotely(N), remove the test database(Y), and reload privileges(Y). 
 #### Edit Configuration File if frappe version is less than v15.21.x 
 #### Note: If you are using frappe version 15.21.x or above, you can skip this step.
 ```sh
@@ -122,7 +122,7 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 
 #### Install Nginx
 ```sh
-    sudo apt-get install nginx
+    sudo apt-get install nginx -y
 ```
 ## Add www-data to the frappe user group
 ```sh
@@ -130,7 +130,7 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 ```
 #### Install Supervisor
 ```sh
-    sudo apt-get install supervisor
+    sudo apt-get install supervisor -y
 ```
 #### Enable Nginx, Supervisor and mariadb
 ```sh
@@ -138,11 +138,11 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 ```
 #### Install Fail2ban
 ```sh
-    sudo apt-get install fail2ban
+    sudo apt-get install fail2ban -y
 ```
 ####
 ```sh
-    sudo apt-get install ansible
+    sudo apt-get install ansible -y
 ```
 
 #### Install Certbot
@@ -155,6 +155,10 @@ Description: Frappe is a full-stack web application framework written in Python,
 
 ```sh
     pip3 install frappe-bench
+```
+## Run the install frappe framework with sudo aswell
+```sh
+    sudo pip3 install frappe-bench
 ```
  
 Congratulations! You have successfully installed the Frappe Framework on your system.
@@ -171,6 +175,10 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ##################### Now the bench is ready to create new sites for development #####################
 <hr>
 
+## Move into the frappe-bench directory
+```sh
+    cd frappe-bench
+```
 
 #### To enable multi_tenancy
 ```sh
@@ -178,7 +186,7 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ```
 #### Create a new site
 ```sh
-    bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password>
+    bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-password>
 ```
 #### Setup Redis Cache,Redis Queue and socketio
 ```sh
