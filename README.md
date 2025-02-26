@@ -17,7 +17,7 @@ Before you begin, ensure you have the following installed on your system:
 ## Add a frappe user and give sudo privileges
 ```sh
     sudo adduser frappe
-    sudo usermod -a -G frappe
+    sudo usermod -a -G sudo frappe
 ```
 ## Login to the frappe user
 ```sh
@@ -40,7 +40,7 @@ Description: Git is a free and open-source distributed version control system de
 Description: Redis is an open-source, in-memory data structure store, used as a database, cache, and message broker.
 
 ```sh
-    sudo apt-get install redis-server
+    sudo apt-get install redis-server -y
 ```
 ## Install Python 3.6+
 Description: Python is a programming language that lets you work quickly and integrate systems more effectively.
