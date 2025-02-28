@@ -332,6 +332,24 @@ Note:
 ```sh
     sudo deluser frappe sudo
 ```
+## Generate public key on root
+```sh
+ssh-keygen
+```
+# Place the public key in the node which you are creating. Also add the public key to the account which the repos are present (this is done for ssh git login)
+# For ansible or even for normal cloning use the "git@" instead of "https"
+
+# Rsync the authorizedkey of the root to any other user which we create.(Ex: for frappe user)
+```sh
+rsync -a /root/.ssh/ /home/frappe/.ssh/
+```
+# Check for ownership
+```sh
+chown -R frappe:frappe /home/frappe/.ssh/
+```
+
+
+
 # Localhost Development Setup
 #### To enable developer mode
 ```sh
