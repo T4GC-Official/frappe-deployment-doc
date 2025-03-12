@@ -336,7 +336,7 @@ Note:
 ```sh
 ssh-keygen
 ```
-# Place the public key in the node which you are creating. Also add the public key to the account which the repos are present (this is done for ssh git login)
+# Place your local host public key in the node which you are creating. Also add the public key of the remote server to the account which the repos are present (this is done for ssh git login)
 # For ansible or even for normal cloning use the "git@" instead of "https"
 
 # Rsync the authorizedkey of the root to any other user which we create.(Ex: for frappe user)
@@ -348,7 +348,20 @@ rsync -a /root/.ssh/ /home/frappe/.ssh/
 chown -R frappe:frappe /home/frappe/.ssh/
 ```
 
+##To have "frappe" as nopassword based sudo privileged user, where any command with sudo ran by the frappe user will not be asked for the frappe password.
+```sh
+sudo visudo
+```
 
+###Add the end of the file add:
+```sh
+Defaults:frappe !authenticate
+```
+
+###Reboot the server once if it doesn't work
+```sh
+sudo reboot
+```
 
 # Localhost Development Setup
 #### To enable developer mode
