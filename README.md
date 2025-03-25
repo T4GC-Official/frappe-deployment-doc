@@ -53,6 +53,7 @@ Description: MariaDB is a community-developed, commercially supported fork of th
 ```sh
     sudo apt-get update
     sudo apt-get install mariadb-server -y
+    sudo apt install -y pkg-config libmariadb-dev
     sudo apt install software-properties-common
     sudo mysql_secure_installation
     
