@@ -404,3 +404,7 @@ sudo reboot
 ```sh
     sudo supervisorctl restart all
 ```
+* **Note**: Use this if there is any dependency issue with the mariadb package while doing bench init.
+  ```sh
+  sudo apt install -y pkg-config libmariadb-dev
+  ```
