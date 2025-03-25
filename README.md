@@ -273,6 +273,12 @@ Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
     sudo bench setup production frappe
 ```
 
+#### Check and update the supercisor services
+```sh
+    sudo supervisorctl status all
+    sudo supervisorctl reread
+    sudo supervisorctl update
+```
 # Additional Important Commands
 
 #### To uninstall an app
