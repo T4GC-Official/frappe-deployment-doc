@@ -118,6 +118,27 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 ```sh
   sudo apt-get install -y wkhtmltopdf
 ```
+* Note: If there is any problem like: Invalid wkhtmltopdf version /n PDF generation may not work as expected. /n Please contact your system manager to install correct version. /n Correct version : wkhtmltopdf 0.12.x (with patched qt). Follow these steps:
+
+```sh
+source ~/.profile
+
+sudo apt-get install xfonts-75dpi
+
+wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo apt --fix-broken install
+
+rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
+
+wkhtmltopdf -V
+
+```
+
 
 # Dependencies for Production Setup
 
