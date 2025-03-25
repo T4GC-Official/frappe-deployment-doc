@@ -118,7 +118,7 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 ```sh
   sudo apt-get install -y wkhtmltopdf
 ```
-* Note: If there is any problem like: Invalid wkhtmltopdf version /n PDF generation may not work as expected. /n Please contact your system manager to install correct version. /n Correct version : wkhtmltopdf 0.12.x (with patched qt). Follow these steps:
+* Note: If there is any problem like: Invalid wkhtmltopdf version \n PDF generation may not work as expected. /n Please contact your system manager to install correct version. /n Correct version : wkhtmltopdf 0.12.x (with patched qt). Follow these steps:
 
 ```sh
 source ~/.profile
