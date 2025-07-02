@@ -356,6 +356,18 @@ Note:
 ```sh
     sudo sh -c "echo 'DenyUsers frappe' >> /etc/ssh/sshd_config && systemctl restart sshd"
 ```
+## Remove Password based Frappe access
+```sh
+    sudo nano /etc/ssh/sshd_config
+```
+Note:
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+
+```sh
+    sudo systemctl restart ssh
+```
 ## Remove sudo privileges for frappe
 ```sh
     sudo deluser frappe sudo
