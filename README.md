@@ -210,11 +210,7 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ```sh
     bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-password>
 ```
-#### Setup Redis Cache,Redis Queue and socketio
-```sh
-    bench setup redis
-    bench setup socketio
-```
+
 #### Setup Nginx
 ```sh
     bench setup nginx
@@ -293,12 +289,17 @@ Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
 ```sh
     sudo bench setup production frappe
 ```
+#### Setup Redis Cache,Redis Queue and socketio
+```sh
+    bench setup redis
+    bench setup socketio
+```
 
 #### Check and update the supercisor services
 ```sh
-    sudo supervisorctl status all
     sudo supervisorctl reread
     sudo supervisorctl update
+    sudo supervisorctl status all
 ```
 # Additional Important Commands
 
