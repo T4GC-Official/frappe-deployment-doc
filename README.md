@@ -197,7 +197,7 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 
 ```sh
     pip install --upgrade pyqrcode rauth docopt
-```sh
+```
 
 Note: The package name may vary based on the deprecation warning. Make changes to the command accordingly.
 
