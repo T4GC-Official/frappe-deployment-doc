@@ -193,6 +193,12 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ```sh
     bench init frappe-bench
 ```
+#### If bench init shows any deprecation warnings with the pip packages run:
+```sh
+    pip install --upgrade pyqrcode rauth docopt
+```sh
+* **Note**: The package name may vary based on the deprecation warning. Make changes to the command accordingly.
+
 <hr>
 ##################### Now the bench is ready to create new sites for development #####################
 <hr>
