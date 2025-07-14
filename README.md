@@ -188,6 +188,10 @@ Congratulations! You have successfully installed the Frappe Framework on your sy
 ```sh
     source ~/.profile
 ```
+## Upgrade python packages
+```sh
+    pip install --upgrade pyqrcode rauth docopt
+```
 
 ## Setup the frappe-bench directory
 ```sh
