@@ -1,18 +1,6 @@
-# Frappe Framework Version 15.x Installation Guide
+# Frappe Framework Version 16.x Installation Guide
 
 This guide provides step-by-step instructions to install the Frappe Framework on your system.
-
-## Prerequisites
-
-Before you begin, ensure you have the following installed on your system:
-
-- Python 3.6+ python3-dev python3-pip
-- Node.js 20.x
-- Redis 6.x
-- MariaDB 10.6.6+
-- yarn
-- git
-- wkhtmltopdf (with specific version requirements)
 
 ## Add a frappe user and give sudo privileges
 ```sh
