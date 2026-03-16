@@ -163,6 +163,9 @@ Description: Frappe is a full-stack web application framework written in Python,
     sudo apt install pipx -y
     pipx ensurepath
 ```
+```sh
+    pipx install frappe-bench
+```
  
 Congratulations! You have successfully installed the Frappe Framework on your system.
 
