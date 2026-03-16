@@ -30,11 +30,17 @@ Description: Redis is an open-source, in-memory data structure store, used as a 
 ```sh
     sudo apt-get install redis-server -y
 ```
-## Install Python 3.6+
+## Install Python 3.14
 Description: Python is a programming language that lets you work quickly and integrate systems more effectively.
 
 ```sh
-    sudo apt-get install python3 python3-dev python3-pip python3.10-venv -y
+sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+```
+
+```sh
+    sudo apt install python3.14 python3.14-dev python3.14-venv python3-pip -y
 ```
 ## Install MariaDB
 Description: MariaDB is a community-developed, commercially supported fork of the MySQL relational database management system.
@@ -46,34 +52,24 @@ Description: MariaDB is a community-developed, commercially supported fork of th
     sudo mysql_secure_installation
     
 ```
-Note: After running the above command, you will be prompted with which user to access (Press Enter), set a root password(Y), remove anonymous users(Y), disallow root login remotely(N), remove the test database(Y), and reload privileges(Y). 
-#### Edit Configuration File if frappe version is less than v15.21.x 
-#### Note: If you are using frappe version 15.21.x or above, you can skip this step.
-```sh
-    sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
-```
-```vim
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
 
-[mysql]
-default-character-set = utf8mb4
-```
 #### Restart MariaDB
 ```sh
     sudo systemctl restart mariadb
 ```
 
-## Install Node.js 20.x
-Description: Node.js is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser.
+## Install Node.js 24.x
+```sh
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt install nodejs -y
+```
+
 #### Install node using nvm (Node Version Manager)
 ```sh
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
     source ~/.profile 
-    nvm install 20
-    nvm use 20
+    nvm install 24
+    nvm use 24
 
 ```
 #### Check Node version 
@@ -164,26 +160,15 @@ wkhtmltopdf -V
 Description: Frappe is a full-stack web application framework written in Python, JavaScript, HTML/CSS with MySQL as the backend. It was developed by Frappe Technologies Pvt. Ltd. and is released under the MIT license.
 
 ```sh
-    pip3 install frappe-bench
-```
-## Run the install frappe framework with sudo aswell
-```sh
-    sudo pip3 install frappe-bench
+    sudo apt install pipx -y
+    pipx ensurepath
 ```
  
 Congratulations! You have successfully installed the Frappe Framework on your system.
-## Source the file
-```sh
-    source ~/.profile
-```
-## Upgrade python packages
-```sh
-    pip install --upgrade pyqrcode rauth docopt
-```
 
 ## Setup the frappe-bench directory
 ```sh
-    bench init frappe-bench
+    bench init frappe-bench --frappe-branch version-16 --python python3.14
 ```
 #### If bench init shows any deprecation warnings with the pip packages run:
 
