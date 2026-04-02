@@ -13,7 +13,19 @@ Before you begin, ensure you have the following installed on your system:
 - yarn
 - git
 - wkhtmltopdf (with specific version requirements)
-## Upadte the OS
+
+## Add a frappe user and give sudo privileges
+```sh
+    sudo adduser frappe
+    sudo usermod -a -G sudo frappe
+```
+## Login to the frappe user
+```sh
+    su - frappe
+```
+Note: It will ask for the frappe password.
+
+## Update the OS
 Note: Before installing any software, it is recommended to update the OS to the latest version.
 ```sh
     sudo apt-get update
@@ -28,7 +40,7 @@ Description: Git is a free and open-source distributed version control system de
 Description: Redis is an open-source, in-memory data structure store, used as a database, cache, and message broker.
 
 ```sh
-    sudo apt-get install redis-server
+    sudo apt-get install redis-server -y
 ```
 ## Install Python 3.6+
 Description: Python is a programming language that lets you work quickly and integrate systems more effectively.
@@ -40,12 +52,13 @@ Description: Python is a programming language that lets you work quickly and int
 Description: MariaDB is a community-developed, commercially supported fork of the MySQL relational database management system.
 ```sh
     sudo apt-get update
-    sudo apt-get install mariadb-server
+    sudo apt-get install mariadb-server -y
+    sudo apt install -y pkg-config libmariadb-dev
     sudo apt install software-properties-common
-    mysql_secure_installation
+    sudo mysql_secure_installation
     
 ```
-Note: After running the above command, you will be prompted to set a root password, remove anonymous users, disallow root login remotely, remove the test database, and reload privileges. You can press Y and hit Enter for all the prompts.
+Note: After running the above command, you will be prompted with which user to access (Press Enter), set a root password(Y), remove anonymous users(Y), disallow root login remotely(N), remove the test database(Y), and reload privileges(Y). 
 #### Edit Configuration File if frappe version is less than v15.21.x 
 #### Note: If you are using frappe version 15.21.x or above, you can skip this step.
 ```sh
@@ -105,6 +118,59 @@ Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.
 ```sh
   sudo apt-get install -y wkhtmltopdf
 ```
+* **Note**: If there is any problem like: Invalid wkhtmltopdf version <br> PDF generation may not work as expected. <br> Please contact your system manager to install correct version. <br> Correct version : wkhtmltopdf 0.12.x (with patched qt). Follow these steps:
+
+```sh
+source ~/.profile
+
+sudo apt-get install xfonts-75dpi
+
+wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo apt --fix-broken install
+
+rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
+
+wkhtmltopdf -V
+
+```
+
+
+# Dependencies for Production Setup
+
+#### Install Nginx
+```sh
+    sudo apt-get install nginx -y
+```
+## Add www-data to the frappe user group
+```sh
+    sudo adduser www-data frappe
+```
+#### Install Supervisor
+```sh
+    sudo apt-get install supervisor -y
+```
+#### Enable Nginx, Supervisor and mariadb
+```sh
+    sudo systemctl enable nginx && sudo systemctl enable mariadb && sudo systemctl enable supervisor
+```
+#### Install Fail2ban
+```sh
+    sudo apt-get install fail2ban -y
+```
+####
+```sh
+    sudo apt-get install ansible -y
+```
+
+#### Install Certbot
+```sh
+    sudo apt-get install certbot python3-certbot-nginx -y
+```
 
 ## Install Frappe Framework
 Description: Frappe is a full-stack web application framework written in Python, JavaScript, HTML/CSS with MySQL as the backend. It was developed by Frappe Technologies Pvt. Ltd. and is released under the MIT license.
@@ -112,82 +178,244 @@ Description: Frappe is a full-stack web application framework written in Python,
 ```sh
     pip3 install frappe-bench
 ```
+## Run the install frappe framework with sudo aswell
+```sh
+    sudo pip3 install frappe-bench
+```
  
 Congratulations! You have successfully installed the Frappe Framework on your system.
+## Source the file
+```sh
+    source ~/.profile
+```
+## Upgrade python packages
+```sh
+    pip install --upgrade pyqrcode rauth docopt
+```
+
+## Setup the frappe-bench directory
+```sh
+    bench init frappe-bench
+```
+#### If bench init shows any deprecation warnings with the pip packages run:
+
+```sh
+    pip install --upgrade pyqrcode rauth docopt
+```
+
+Note: The package name may vary based on the deprecation warning. Make changes to the command accordingly.
+
 <hr>
 ##################### Now the bench is ready to create new sites for development #####################
 <hr>
 
-# Production Setup
-
-#### Install Nginx
+## Move into the frappe-bench directory
 ```sh
-    sudo apt-get install nginx
+    cd frappe-bench
 ```
 
-#### Install Supervisor
-```sh
-    sudo apt-get install supervisor
-```
-
-#### Install Fail2ban
-```sh
-    sudo apt-get install fail2ban
-```
-#### Install Certbot
-```sh
-    sudo apt-get install certbot python3-certbot-nginx -y
-```
-#### Create a new site
-```sh
-    bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password>
-```
-#### Enable SSL for your site using Let's Encrypt but before that make sure your domain is pointing to the server's IP address.
-you will also need to enable dns based multitenancy in site_config.json file
-```sh
-    sudo nano /home/frappe/frappe-bench/sites/<site-name>/site_config.json
-```
-```json
-{
-    "db_name": "site-name",
-    "db_password": "site-db-password",
-    "dns_multitenant": 1
-}
-```
-or run the following command to enable dns based multitenancy
+#### To enable multi_tenancy
 ```sh
     bench config dns_multitenant on
 ```
+#### Create a new site
+```sh
+    bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-password>
+```
 
+#### Setup Nginx
+```sh
+    bench setup nginx
+```
+
+#### Setup Supervisor
+```sh
+    bench setup supervisor
+```
+#### Create symlinks for NGINX and SUPERVISOR (For manual configuration. Run bench setup production for automatic creation)
+```sh 
+    cd /etc/nginx/conf.d
+    sudo ln -s /home/frappe/frappe-bench/config/nginx.conf nginx.conf
+    cd ../../supervisor/conf.d
+    sudo ln -s /home/frappe/frappe-bench/config/supervisor.conf supervisor.conf
+```
+#### Start Supervisor
+```sh
+    sudo supervisorctl reload
+    sudo systemctl reload nginx
+    sudo supervisorctl status all
+    sudo supervisorctl start all
+```
+
+#### Enable scheduler
+```sh
+    bench --site <site-name> enable-scheduler
+```
+
+#### Setup Let's Encrypt 
+```sh
+    sudo -H bench setup lets-encrypt <site-name>
+```
+# For 2nd site
+```sh
+    bench new-site <site-name2> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-username>
+```
+#### Setup Nginx again
+```sh
+    bench setup nginx
+```
+
+#### Enable scheduler for the 2nd site
+```sh
+    bench --site <site-name2> enable-scheduler
+```
+#### Setup Let's Encrypt 
+```sh
+    sudo -H bench setup lets-encrypt <site-name>
+```
+
+#### Reload Nginx
+```sh
+    sudo systemctl reload nginx
+```
+Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
+
+
+# Install Frappe Apps
+#### To install an app from the Frappe App Store
+```sh
+    bench get-app <app-name>
+    bench --site <site-name> install-app <app-name>
+```
+#### To install an app from a custom repository
+```sh
+    bench get-app <app-repo-url>
+    bench --site <site-name> install-app <app-name>
+```
+#### To setup Fail2ban
+```sh
+    sudo bench setup fail2ban
+```
+
+#### To setup Production
+```sh
+    sudo bench setup production frappe
+```
 #### Setup Redis Cache,Redis Queue and socketio
 ```sh
     bench setup redis
     bench setup socketio
 ```
-#### Setup fail2ban
-```sh
-    sudo bench setup fail2ban
-```
-#### Setup Nginx
-```sh
-    sudo bench setup nginx
-```
 
-#### Setup Let's Encrypt
+#### Check and update the supercisor services
 ```sh
-    sudo -H bench setup lets-encrypt <site-name>
-```
-
-#### Setup Supervisor
-```sh
-    sudo bench setup supervisor
-```
-#### Start Supervisor
-```sh
-    sudo supervisorctl relaod
+    sudo supervisorctl reread
+    sudo supervisorctl update
     sudo supervisorctl status all
-    sudo supervisorctl start all
 ```
+# Additional Important Commands
+
+#### To uninstall an app
+```sh
+    bench --site <site-name> uninstall-app <app-name>
+```
+#### To list the apps on a site
+```sh
+    bench --site <site-name> list-apps
+```
+#### To migrate a site
+```sh
+    bench --site <site-name> migrate
+```
+
+#### To take a backup of a site
+```sh
+    bench --site <site-name> backup
+```
+
+#### To restore a site
+```sh
+    bench --site <site-name> restore --db-root-username <username> --db-root-password <password>
+```
+#### To drop a site
+```sh
+    bench drop-site <site-name>
+```
+
+#### To Update the bench
+```sh
+    bench update
+```
+Note: It runs;
+1. Updates Bench – Pulls the latest changes for the bench repository.
+2. Updates Apps – Pulls updates for Frappe and any installed apps (like ERPNext) from their respective Git repositories.
+3. Runs Migrations – Applies database migrations for updated apps.
+4. Builds Assets – Recompiles JS, CSS, and other assets.
+5. Restarts Services – Restarts frappe processes and related services.
+
+#### To update UI-related changes
+```sh 
+    bench build
+```
+Note:
+1. Compiles JS & CSS – Processes files from apps/*/public/ and builds them into sites/assets/.
+2. Minifies Assets – Optimizes files for production.
+3. Updates Webpack Bundles – Rebuilds JS/CSS bundles for Frappe and other apps.
+4. Cleans Up Old Files – Removes unused or outdated assets.
+
+# Security Implementations
+
+## Restrict direct SSH access to frappe user
+```sh
+    sudo sh -c "echo 'DenyUsers frappe' >> /etc/ssh/sshd_config && systemctl restart sshd"
+```
+## Remove Password based Frappe access
+```sh
+    sudo nano /etc/ssh/sshd_config
+```
+Note:
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+
+```sh
+    sudo systemctl restart ssh
+```
+## Remove sudo privileges for frappe
+```sh
+    sudo deluser frappe sudo
+```
+## Generate public key on root
+```sh
+ssh-keygen
+```
+# Place your local host public key in the node which you are creating. Also add the public key of the remote server to the account which the repos are present (this is done for ssh git login)
+# For ansible or even for normal cloning use the "git@" instead of "https"
+
+# Rsync the authorizedkey of the root to any other user which we create.(Ex: for frappe user)
+```sh
+rsync -a /root/.ssh/ /home/frappe/.ssh/
+```
+# Check for ownership
+```sh
+chown -R frappe:frappe /home/frappe/.ssh/
+```
+
+##To have "frappe" as nopassword based sudo privileged user, where any command with sudo ran by the frappe user will not be asked for the frappe password.
+```sh
+sudo visudo
+```
+
+###Add the end of the file add:
+```sh
+Defaults:frappe !authenticate
+```
+
+###Reboot the server once if it doesn't work
+```sh
+sudo reboot
+```
+
 # Localhost Development Setup
 #### To enable developer mode
 ```sh
@@ -201,19 +429,7 @@ or run the following command to enable dns based multitenancy
 ```sh
     sudo supervisorctl restart all
 ```
-# Install Frappe Apps
-#### To install an app from the Frappe App Store
-```sh
-    bench get-app <app-name>
-    bench --site <site-name> install-app <app-name>
-```
-#### To install an app from a custom repository
-```sh
-    bench get-app <app-repo-url>
-    bench --site <site-name> install-app <app-name>
-```
-#### To uninstall an app
-```sh
-    bench --site <site-name> uninstall-app <app-name>
-```
-
+* **Note**: Use this if there is any dependency issue with the mariadb package while doing bench init.
+  ```sh
+  sudo apt install -y pkg-config libmariadb-dev
+  ```
