@@ -42,15 +42,18 @@ sudo apt update
 ```sh
     sudo apt install python3.14 python3.14-dev python3.14-venv python3-pip -y
 ```
-## Install MariaDB
+
+Set python 3.14 as default:
+```sh
+    sudo update-alternatives --config python3
+```
+## Install MariaDB 11.8
 Description: MariaDB is a community-developed, commercially supported fork of the MySQL relational database management system.
 ```sh
+    curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=11.8
     sudo apt-get update
-    sudo apt-get install mariadb-server -y
-    sudo apt install -y pkg-config libmariadb-dev
-    sudo apt install software-properties-common
-    sudo mysql_secure_installation
-    
+    sudo apt-get install -y mariadb-server mariadb-client libmariadb-dev pkg-config
+    sudo mariadb-secure-installation
 ```
 
 #### Restart MariaDB
@@ -160,18 +163,18 @@ wkhtmltopdf -V
 Description: Frappe is a full-stack web application framework written in Python, JavaScript, HTML/CSS with MySQL as the backend. It was developed by Frappe Technologies Pvt. Ltd. and is released under the MIT license.
 
 ```sh
-    sudo apt install pipx -y
-    pipx ensurepath
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
 ```sh
-    pipx install frappe-bench
+    mkdir ~/frappe
+    cd ~/frappe
 ```
- 
 Congratulations! You have successfully installed the Frappe Framework on your system.
 
 ## Setup the frappe-bench directory
 ```sh
-    bench init frappe-bench --frappe-branch version-16 --python python3.14
+    bench init frappe-bench --frappe-branch version-16 
 ```
 #### If bench init shows any deprecation warnings with the pip packages run:
 
@@ -271,6 +274,17 @@ Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
 #### To setup Fail2ban
 ```sh
     sudo bench setup fail2ban
+```
+or
+
+```sh
+    which bench
+```
+
+paste the path with the command
+
+```sh
+    sudo /home/your-user/.local/bin/bench setup production [your-user]
 ```
 
 #### To setup Production
