@@ -624,3 +624,266 @@ Then:
 | Frappe | version-16 |
 
 ---
+
+# EXTRA NOTES / COMMON ISSUES
+
+---
+
+## Site Opens but Shows "127.0.0.1 does not exist"
+
+Cause:
+- Bench does not know which site should respond to localhost requests.
+
+Fix:
+
+```bash
+bench use <site-name>
+```
+
+Example:
+
+```bash
+bench use abhi.com
+```
+
+Then restart:
+
+```bash
+bench start
+```
+
+---
+
+## Site Loads but CSS/JS Assets Are Missing
+
+Symptoms:
+- Plain HTML page
+- No styling
+- Broken UI
+- Console shows missing CSS/JS files
+
+Common Causes:
+- Assets were not built properly
+- Wrong hostname mapping
+- Site name mismatch
+- Browser cached broken assets
+
+Fix:
+
+Stop bench:
+
+```bash
+CTRL + C
+```
+
+Rebuild assets:
+
+```bash
+bench build
+```
+
+Clear cache:
+
+```bash
+bench clear-cache
+bench clear-website-cache
+```
+
+Ensure correct site is active:
+
+```bash
+bench use <site-name>
+```
+
+Start again:
+
+```bash
+bench start
+```
+
+Open:
+
+```text
+http://localhost:8000/app
+```
+
+NOT just `/`.
+
+---
+
+
+
+## PostgreSQL Authentication Failure
+
+Error:
+
+```text
+password authentication failed for user "postgres"
+```
+
+Cause:
+- Ubuntu uses peer auth by default
+- Bench connects using TCP/password auth
+
+Fix:
+
+```bash
+sudo -u postgres psql
+```
+
+Then:
+
+```sql
+ALTER USER postgres PASSWORD 'postgres';
+\q
+```
+
+---
+
+## Bench Init Fails with "uv not found"
+
+Cause:
+- New Bench versions require `uv`
+
+Fix:
+
+```bash
+pipx install uv
+```
+
+---
+
+## mysqlclient Build Failure During Bench Init
+
+Error:
+
+```text
+Failed to build mysqlclient
+```
+
+Cause:
+- Frappe still installs mysqlclient internally
+- MariaDB development headers are missing
+
+Fix:
+
+```bash
+sudo apt install -y \
+libmariadb-dev \
+libmariadb-dev-compat \
+mariadb-client
+```
+
+NOTE:
+Do NOT install:
+- mariadb-server
+- mysql-server
+
+Only dev libraries are required.
+
+---
+
+## PostgreSQL Support Is Experimental
+
+Current Frappe v16 PostgreSQL support is still experimental.
+
+Possible issues:
+- migrations may fail occasionally
+- some third-party apps assume MariaDB
+- certain SQL queries may break
+- ERPNext modules may have edge-case issues
+
+For development:
+- PostgreSQL is fine
+
+For production ERP workloads:
+- MariaDB is still safer currently
+
+---
+
+## WSL Performance Problems
+
+Symptoms:
+- slow asset builds
+- slow hot reload
+- high CPU usage
+- node_modules lag
+
+Most Common Cause:
+Project stored inside:
+
+```text
+/mnt/c/
+```
+
+Correct Location:
+
+```text
+/home/<user>/
+```
+
+Example:
+
+```text
+/home/abhi/frappe-dev
+```
+
+---
+
+## Browser Cache Issues
+
+Sometimes old assets remain cached.
+
+Fix:
+- hard refresh browser
+- open in incognito
+- clear browser cache
+
+Hard refresh shortcut:
+
+```text
+CTRL + SHIFT + R
+```
+
+---
+
+## Scheduler Disabled Warning
+
+Message:
+
+```text
+Scheduler is disabled
+```
+
+This is normal after site creation.
+
+Enable scheduler later with:
+
+```bash
+bench enable-scheduler
+```
+
+Or for specific site:
+
+```bash
+bench --site <site-name> enable-scheduler
+```
+
+---
+
+## Default Frappe Desk URL
+
+Frappe Desk UI is located at:
+
+```text
+http://localhost:8000/app
+```
+
+Opening just `/` may show:
+- website route
+- 404 page
+- empty site
+
+depending on configuration.
+
+---
