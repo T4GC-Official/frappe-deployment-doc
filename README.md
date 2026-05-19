@@ -1,435 +1,626 @@
-# Frappe Framework Version 15.x Installation Guide
+# Frappe v16 + PostgreSQL 15 Setup on Ubuntu 24.04 WSL2
 
-This guide provides step-by-step instructions to install the Frappe Framework on your system.
+This guide sets up:
 
-## Prerequisites
+- Ubuntu 24.04 LTS on WSL2
+- Python 3.14
+- PostgreSQL 15.17
+- NodeJS 24
+- Yarn 1.x
+- Redis
+- Bench
+- Frappe Framework v16
+- PostgreSQL instead of MariaDB
 
-Before you begin, ensure you have the following installed on your system:
+This setup follows the latest Frappe v16 recommendations while fixing the real-world issues that happen during installation.
 
-- Python 3.6+ python3-dev python3-pip
-- Node.js 20.x
-- Redis 6.x
-- MariaDB 10.6.6+
-- yarn
-- git
-- wkhtmltopdf (with specific version requirements)
+---
 
-## Add a frappe user and give sudo privileges
-```sh
-    sudo adduser frappe
-    sudo usermod -a -G sudo frappe
-```
-## Login to the frappe user
-```sh
-    su - frappe
-```
-Note: It will ask for the frappe password.
+# IMPORTANT NOTES
 
-## Update the OS
-Note: Before installing any software, it is recommended to update the OS to the latest version.
-```sh
-    sudo apt-get update
+## 1. Use Linux Filesystem ONLY
+
+DO NOT create the project inside:
+
+```bash
+/mnt/c/
 ```
 
-##  Install Git
-Description: Git is a free and open-source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
-```sh
-    sudo apt-get install git
-```
-## Install Redis
-Description: Redis is an open-source, in-memory data structure store, used as a database, cache, and message broker.
+Use:
 
-```sh
-    sudo apt-get install redis-server -y
-```
-## Install Python 3.6+
-Description: Python is a programming language that lets you work quickly and integrate systems more effectively.
-
-```sh
-    sudo apt-get install python3 python3-dev python3-pip python3.10-venv -y
-```
-## Install MariaDB
-Description: MariaDB is a community-developed, commercially supported fork of the MySQL relational database management system.
-```sh
-    sudo apt-get update
-    sudo apt-get install mariadb-server -y
-    sudo apt install -y pkg-config libmariadb-dev
-    sudo apt install software-properties-common
-    sudo mysql_secure_installation
-    
-```
-Note: After running the above command, you will be prompted with which user to access (Press Enter), set a root password(Y), remove anonymous users(Y), disallow root login remotely(N), remove the test database(Y), and reload privileges(Y). 
-#### Edit Configuration File if frappe version is less than v15.21.x 
-#### Note: If you are using frappe version 15.21.x or above, you can skip this step.
-```sh
-    sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
-```
-```vim
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-
-[mysql]
-default-character-set = utf8mb4
-```
-#### Restart MariaDB
-```sh
-    sudo systemctl restart mariadb
+```bash
+/home/<your-user>/
 ```
 
-## Install Node.js 20.x
-Description: Node.js is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser.
-#### Install node using nvm (Node Version Manager)
-```sh
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-    source ~/.profile 
-    nvm install 20
-    nvm use 20
+Example:
 
-```
-#### Check Node version 
-Note: The version should be 21.x or above. for latest version of frappe framework 15.x
-```sh
-    node -v
+```bash
+/home/abhi/frappe-dev
 ```
 
-## Install Yarn using npm
-Description: Yarn is a package manager that doubles down as project manager. Whether you work on one-shot projects or large monorepos, as a hobbyist or an enterprise user, we've got you covered.
+Otherwise:
+- file watching becomes slow
+- yarn install becomes painful
+- node_modules performance tanks
+- bench hot reload becomes unstable
 
-```sh
-    npm install -g yarn
-```
+---
 
-#### Install **xvfb** is an X server that can run on machines with no display hardware and no physical input devices. It emulates a dumb framebuffer using virtual memory.
-```sh
-    sudo apt-get install -y xvfb 
-```
+## 2. Enable Enough RAM for WSL
 
-#### Install **libfontconfig** is a library designed to provide system-wide font configuration, customization, and application access.
-```sh
-    sudo apt-get install -y libfontconfig
-```
+Create this file in Windows:
 
-## Install wkhtmltopdf
-**Description**: **wkhtmltopdf** and wkhtmltoimage are open source (LGPLv3) command line tools to render HTML into PDF and various image formats using the Qt WebKit rendering engine.
-Download and install wkhtmltopdf package from https://wkhtmltopdf.org/downloads.html
-
-```sh
-  sudo apt-get install -y wkhtmltopdf
-```
-* **Note**: If there is any problem like: Invalid wkhtmltopdf version <br> PDF generation may not work as expected. <br> Please contact your system manager to install correct version. <br> Correct version : wkhtmltopdf 0.12.x (with patched qt). Follow these steps:
-
-```sh
-source ~/.profile
-
-sudo apt-get install xfonts-75dpi
-
-wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-
-sudo apt --fix-broken install
-
-rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-
-sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
-
-wkhtmltopdf -V
-
+```text
+C:\Users\<YOUR_USERNAME>\.wslconfig
 ```
 
+Add:
 
-# Dependencies for Production Setup
-
-#### Install Nginx
-```sh
-    sudo apt-get install nginx -y
-```
-## Add www-data to the frappe user group
-```sh
-    sudo adduser www-data frappe
-```
-#### Install Supervisor
-```sh
-    sudo apt-get install supervisor -y
-```
-#### Enable Nginx, Supervisor and mariadb
-```sh
-    sudo systemctl enable nginx && sudo systemctl enable mariadb && sudo systemctl enable supervisor
-```
-#### Install Fail2ban
-```sh
-    sudo apt-get install fail2ban -y
-```
-####
-```sh
-    sudo apt-get install ansible -y
+```ini
+[wsl2]
+memory=8GB
+processors=4
+swap=4GB
 ```
 
-#### Install Certbot
-```sh
-    sudo apt-get install certbot python3-certbot-nginx -y
+Then restart WSL:
+
+```powershell
+wsl --shutdown
 ```
 
-## Install Frappe Framework
-Description: Frappe is a full-stack web application framework written in Python, JavaScript, HTML/CSS with MySQL as the backend. It was developed by Frappe Technologies Pvt. Ltd. and is released under the MIT license.
+---
 
-```sh
-    pip3 install frappe-bench
-```
-## Run the install frappe framework with sudo aswell
-```sh
-    sudo pip3 install frappe-bench
-```
- 
-Congratulations! You have successfully installed the Frappe Framework on your system.
-## Source the file
-```sh
-    source ~/.profile
-```
-## Upgrade python packages
-```sh
-    pip install --upgrade pyqrcode rauth docopt
+# STEP 1 — Enable systemd in WSL
+
+Open Ubuntu terminal.
+
+Edit:
+
+```bash
+sudo nano /etc/wsl.conf
 ```
 
-## Setup the frappe-bench directory
-```sh
-    bench init frappe-bench
-```
-#### If bench init shows any deprecation warnings with the pip packages run:
+Add:
 
-```sh
-    pip install --upgrade pyqrcode rauth docopt
+```ini
+[boot]
+systemd=true
 ```
 
-Note: The package name may vary based on the deprecation warning. Make changes to the command accordingly.
+Save:
+- CTRL + O
+- Enter
+- CTRL + X
 
-<hr>
-##################### Now the bench is ready to create new sites for development #####################
-<hr>
+Shutdown WSL from PowerShell:
 
-## Move into the frappe-bench directory
-```sh
-    cd frappe-bench
-```
-
-#### To enable multi_tenancy
-```sh
-    bench config dns_multitenant on
-```
-#### Create a new site
-```sh
-    bench new-site <site-name> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-password>
+```powershell
+wsl --shutdown
 ```
 
-#### Setup Nginx
-```sh
-    bench setup nginx
+Reopen Ubuntu.
+
+Verify:
+
+```bash
+systemctl status
 ```
 
-#### Setup Supervisor
-```sh
-    bench setup supervisor
-```
-#### Create symlinks for NGINX and SUPERVISOR (For manual configuration. Run bench setup production for automatic creation)
-```sh 
-    cd /etc/nginx/conf.d
-    sudo ln -s /home/frappe/frappe-bench/config/nginx.conf nginx.conf
-    cd ../../supervisor/conf.d
-    sudo ln -s /home/frappe/frappe-bench/config/supervisor.conf supervisor.conf
-```
-#### Start Supervisor
-```sh
-    sudo supervisorctl reload
-    sudo systemctl reload nginx
-    sudo supervisorctl status all
-    sudo supervisorctl start all
+If systemd works, continue.
+
+---
+
+# STEP 2 — Update Ubuntu
+
+```bash
+sudo apt update && sudo apt upgrade -y
 ```
 
-#### Enable scheduler
-```sh
-    bench --site <site-name> enable-scheduler
+---
+
+# STEP 3 — Install Core Dependencies
+
+```bash
+sudo apt install -y \
+git curl build-essential gcc g++ make \
+pkg-config software-properties-common \
+redis-server xvfb libfontconfig wkhtmltopdf \
+libssl-dev libffi-dev \
+python3-dev python3-pip python3-venv \
+pipx
 ```
 
-#### Setup Let's Encrypt 
-```sh
-    sudo -H bench setup lets-encrypt <site-name>
-```
-# For 2nd site
-```sh
-    bench new-site <site-name2> --admin-password <site-admin-password> --db-root-password <mariadb-root-password> --db-root-username <mariadb-root-username>
-```
-#### Setup Nginx again
-```sh
-    bench setup nginx
+---
+
+# STEP 4 — Install Python 3.14
+
+Add deadsnakes PPA:
+
+```bash
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
 ```
 
-#### Enable scheduler for the 2nd site
-```sh
-    bench --site <site-name2> enable-scheduler
-```
-#### Setup Let's Encrypt 
-```sh
-    sudo -H bench setup lets-encrypt <site-name>
+Install Python 3.14:
+
+```bash
+sudo apt install -y \
+python3.14 \
+python3.14-dev \
+python3.14-venv
 ```
 
-#### Reload Nginx
-```sh
-    sudo systemctl reload nginx
-```
-Note: Until the multi_tenancy is not on, lets-encrypt will throw an error.
+Verify:
 
-
-# Install Frappe Apps
-#### To install an app from the Frappe App Store
-```sh
-    bench get-app <app-name>
-    bench --site <site-name> install-app <app-name>
-```
-#### To install an app from a custom repository
-```sh
-    bench get-app <app-repo-url>
-    bench --site <site-name> install-app <app-name>
-```
-#### To setup Fail2ban
-```sh
-    sudo bench setup fail2ban
+```bash
+python3.14 --version
 ```
 
-#### To setup Production
-```sh
-    sudo bench setup production frappe
-```
-#### Setup Redis Cache,Redis Queue and socketio
-```sh
-    bench setup redis
-    bench setup socketio
+Expected:
+
+```bash
+Python 3.14.x
 ```
 
-#### Check and update the supercisor services
-```sh
-    sudo supervisorctl reread
-    sudo supervisorctl update
-    sudo supervisorctl status all
-```
-# Additional Important Commands
+---
 
-#### To uninstall an app
-```sh
-    bench --site <site-name> uninstall-app <app-name>
-```
-#### To list the apps on a site
-```sh
-    bench --site <site-name> list-apps
-```
-#### To migrate a site
-```sh
-    bench --site <site-name> migrate
+# STEP 5 — Upgrade pip
+
+```bash
+python3.14 -m pip install --upgrade pip
 ```
 
-#### To take a backup of a site
-```sh
-    bench --site <site-name> backup
+Verify:
+
+```bash
+python3.14 -m pip --version
 ```
 
-#### To restore a site
-```sh
-    bench --site <site-name> restore --db-root-username <username> --db-root-password <password>
-```
-#### To drop a site
-```sh
-    bench drop-site <site-name>
+---
+
+# STEP 6 — Install PostgreSQL 15.17
+
+## Add PostgreSQL Repository
+
+```bash
+sudo apt install -y gnupg2
 ```
 
-#### To Update the bench
-```sh
-    bench update
-```
-Note: It runs;
-1. Updates Bench – Pulls the latest changes for the bench repository.
-2. Updates Apps – Pulls updates for Frappe and any installed apps (like ERPNext) from their respective Git repositories.
-3. Runs Migrations – Applies database migrations for updated apps.
-4. Builds Assets – Recompiles JS, CSS, and other assets.
-5. Restarts Services – Restarts frappe processes and related services.
-
-#### To update UI-related changes
-```sh 
-    bench build
-```
-Note:
-1. Compiles JS & CSS – Processes files from apps/*/public/ and builds them into sites/assets/.
-2. Minifies Assets – Optimizes files for production.
-3. Updates Webpack Bundles – Rebuilds JS/CSS bundles for Frappe and other apps.
-4. Cleans Up Old Files – Removes unused or outdated assets.
-
-# Security Implementations
-
-## Restrict direct SSH access to frappe user
-```sh
-    sudo sh -c "echo 'DenyUsers frappe' >> /etc/ssh/sshd_config && systemctl restart sshd"
-```
-## Remove Password based Frappe access
-```sh
-    sudo nano /etc/ssh/sshd_config
-```
-Note:
-PasswordAuthentication no
-ChallengeResponseAuthentication no
-UsePAM no
-
-```sh
-    sudo systemctl restart ssh
-```
-## Remove sudo privileges for frappe
-```sh
-    sudo deluser frappe sudo
-```
-## Generate public key on root
-```sh
-ssh-keygen
-```
-# Place your local host public key in the node which you are creating. Also add the public key of the remote server to the account which the repos are present (this is done for ssh git login)
-# For ansible or even for normal cloning use the "git@" instead of "https"
-
-# Rsync the authorizedkey of the root to any other user which we create.(Ex: for frappe user)
-```sh
-rsync -a /root/.ssh/ /home/frappe/.ssh/
-```
-# Check for ownership
-```sh
-chown -R frappe:frappe /home/frappe/.ssh/
+```bash
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+gpg --dearmor | sudo tee /usr/share/keyrings/postgresql.gpg > /dev/null
 ```
 
-##To have "frappe" as nopassword based sudo privileged user, where any command with sudo ran by the frappe user will not be asked for the frappe password.
-```sh
-sudo visudo
+```bash
+echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] \
+http://apt.postgresql.org/pub/repos/apt noble-pgdg main" | \
+sudo tee /etc/apt/sources.list.d/pgdg.list
 ```
 
-###Add the end of the file add:
-```sh
-Defaults:frappe !authenticate
+Update:
+
+```bash
+sudo apt update
 ```
 
-###Reboot the server once if it doesn't work
-```sh
-sudo reboot
+Install PostgreSQL:
+
+```bash
+sudo apt install -y \
+postgresql-15 \
+postgresql-client-15 \
+postgresql-contrib-15 \
+libpq-dev
 ```
 
-# Localhost Development Setup
-#### To enable developer mode
-```sh
-    bench set-config developer_mode 1
+Verify:
+
+```bash
+psql --version
 ```
-#### To enable auto-reload
-```sh
-    bench watch
+
+Expected:
+
+```bash
+psql (PostgreSQL) 15.17
 ```
-#### To start the development server
-```sh
-    sudo supervisorctl restart all
+
+---
+
+# STEP 7 — Install MariaDB Development Libraries
+
+IMPORTANT:
+
+Even when using PostgreSQL, Frappe still installs `mysqlclient`.
+
+So you MUST install MariaDB development headers.
+
+Install:
+
+```bash
+sudo apt install -y \
+libmariadb-dev \
+libmariadb-dev-compat \
+mariadb-client
 ```
-* **Note**: Use this if there is any dependency issue with the mariadb package while doing bench init.
-  ```sh
-  sudo apt install -y pkg-config libmariadb-dev
-  ```
+
+NOTE:
+You do NOT need:
+- mariadb-server
+- mysql-server
+
+Only development libraries are needed.
+
+---
+
+# STEP 8 — Start Services
+
+Enable and start PostgreSQL:
+
+```bash
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+```
+
+Enable and start Redis:
+
+```bash
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+Verify:
+
+```bash
+sudo systemctl status postgresql
+sudo systemctl status redis-server
+```
+
+---
+
+# STEP 9 — Create PostgreSQL User
+
+Open PostgreSQL shell:
+
+```bash
+sudo -u postgres psql
+```
+
+Run:
+
+```sql
+CREATE ROLE frappe WITH LOGIN PASSWORD 'frappe';
+ALTER ROLE frappe CREATEDB;
+ALTER ROLE frappe SUPERUSER;
+\q
+```
+
+---
+
+# STEP 10 — Install NVM
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+```
+
+Reload shell:
+
+```bash
+source ~/.bashrc
+```
+
+---
+
+# STEP 11 — Install NodeJS 24
+
+Install Node 24:
+
+```bash
+nvm install 24
+nvm use 24
+nvm alias default 24
+```
+
+Verify:
+
+```bash
+node -v
+npm -v
+```
+
+Expected:
+- Node v24.x
+
+---
+
+# STEP 12 — Install Yarn
+
+Frappe requires Yarn Classic (1.x).
+
+Install:
+
+```bash
+npm install -g yarn
+```
+
+Verify:
+
+```bash
+yarn -v
+```
+
+Expected:
+- 1.22+
+
+---
+
+# STEP 13 — Install uv
+
+Modern Bench internally uses `uv`.
+
+Install:
+
+```bash
+pipx install uv
+```
+
+Reload shell:
+
+```bash
+source ~/.bashrc
+```
+
+Verify:
+
+```bash
+uv --version
+```
+
+---
+
+# STEP 14 — Install Bench
+
+Install Bench:
+
+```bash
+pipx install frappe-bench
+```
+
+Enable pipx paths:
+
+```bash
+pipx ensurepath
+```
+
+Reload shell:
+
+```bash
+source ~/.bashrc
+```
+
+Verify:
+
+```bash
+bench --version
+```
+
+---
+
+# STEP 15 — Create Workspace
+
+```bash
+mkdir ~/frappe-dev
+cd ~/frappe-dev
+```
+
+---
+
+# STEP 16 — Initialize Bench
+
+IMPORTANT:
+This step may take a long time.
+
+Run:
+
+```bash
+bench init frappe-bench \
+--frappe-branch version-16 \
+--python python3.14
+```
+
+This installs:
+- Python environment
+- Frappe framework
+- Node packages
+- Redis configs
+- Bench configs
+
+---
+
+# STEP 17 — Open Bench Directory
+
+```bash
+cd frappe-bench
+```
+
+---
+
+# STEP 18 — Create Site Using PostgreSQL
+
+IMPORTANT:
+Always specify PostgreSQL explicitly.
+
+Run:
+
+```bash
+bench new-site dev.local \
+--db-type postgres
+```
+
+Use:
+- DB Host → localhost
+- DB Port → 5432
+- DB User → frappe
+- DB Password → frappe
+
+Then set:
+- Administrator password
+
+---
+
+# STEP 19 — Start Frappe
+
+Run:
+
+```bash
+bench start
+```
+
+Open browser:
+
+```text
+http://localhost:8000
+```
+
+Login:
+- User → Administrator
+- Password → the password you created
+
+---
+
+# OPTIONAL — Install ERPNext
+
+Inside bench directory:
+
+```bash
+bench get-app erpnext --branch version-16
+```
+
+Install app:
+
+```bash
+bench --site dev.local install-app erpnext
+```
+
+---
+
+# USEFUL COMMANDS
+
+## Start Bench
+
+```bash
+bench start
+```
+
+---
+
+## Stop Bench
+
+CTRL + C
+
+---
+
+## Open PostgreSQL
+
+```bash
+sudo -u postgres psql
+```
+
+---
+
+## Restart Redis
+
+```bash
+sudo systemctl restart redis-server
+```
+
+---
+
+## Restart PostgreSQL
+
+```bash
+sudo systemctl restart postgresql
+```
+
+---
+
+# COMMON ERRORS
+
+---
+
+## ERROR: uv not found
+
+Fix:
+
+```bash
+pipx install uv
+```
+
+---
+
+## ERROR: mysqlclient build failed
+
+Fix:
+
+```bash
+sudo apt install -y \
+libmariadb-dev \
+libmariadb-dev-compat \
+mariadb-client
+```
+
+---
+
+## ERROR: Port 8000 already in use
+
+Check:
+
+```bash
+lsof -i :8000
+```
+
+Kill conflicting process.
+
+---
+
+## ERROR: Redis connection refused
+
+Restart Redis:
+
+```bash
+sudo systemctl restart redis-server
+```
+
+---
+
+## ERROR: PostgreSQL authentication failed
+
+Verify user exists:
+
+```bash
+sudo -u postgres psql
+```
+
+Then:
+
+```sql
+\du
+```
+
+---
+
+# FINAL RECOMMENDED STACK
+
+| Component | Version |
+|---|---|
+| Ubuntu | 24.04 |
+| Python | 3.14 |
+| PostgreSQL | 15.17 |
+| NodeJS | 24 |
+| Yarn | 1.22+ |
+| Redis | 6+ |
+| Bench | latest |
+| Frappe | version-16 |
+
+---
